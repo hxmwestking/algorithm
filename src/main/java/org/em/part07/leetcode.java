@@ -5,9 +5,12 @@ import java.util.Arrays;
 public class leetcode {
     public static void main(String[] args) {
         leetcode leetcode = new leetcode();
-        int[] arr = {1,2,3,8,5,7,6,4};
+        /*int[] arr = {1, 2, 3, 8, 5, 7, 6, 4};
         leetcode.nextPermutation(arr);
-        System.out.println(Arrays.toString(arr));
+        System.out.println(Arrays.toString(arr));*/
+
+        int[] arr = {4,5,6,7,0,1,2};
+        System.out.println(leetcode.search(arr, 0));
     }
 
     /*
@@ -70,5 +73,102 @@ public class leetcode {
             j--;
         }
 
+    }
+
+    /*
+    给定一个只包含 '('和 ')'的字符串，找出最长的包含有效括号的子串的长度。
+
+    示例1:
+    输入: "(()"
+    输出: 2
+    解释: 最长有效括号子串为 "()"
+
+    示例 2:
+    输入: ")()())"
+    输出: 4
+    解释: 最长有效括号子串为 "()()"
+
+    1.s[i]=‘)’ 且 s[i−1]=‘(’，也就是字符串形如 “……()”，我们可以推出：
+    dp[i]=dp[i−2]+2
+    我们可以进行这样的转移，是因为结束部分的 "()" 是一个有效子字符串，并且将之前有效子字符串的长度增加了2。
+
+    2.s[i]=‘)’ 且 s[i−1]=‘)’，也就是字符串形如 “……))”，我们可以推出：
+    如果 s[i−dp[i−1]−1]=‘(’，那么
+        dp[i]=dp[i−1]+dp[i−dp[i−1]−2]+2
+
+    我们考虑如果倒数第二个‘)’是一个有效子字符串的一部分（记作 subs），对于最后一个‘)’，如果它是一个更长子字符串的一部分，
+    那么它一定有一个对应的‘(’，且它的位置在倒数第二个‘)’所在的有效子字符串的前面（也就是subs的前面）。因此，如果子字符串subs
+    的前面恰好是‘(’，那么我们就用2加上subs的长度（dp[i−1]）去更新dp[i]。同时，我们也会把有效子串 “(subs)”之前的有效子串的长度也加上，
+    也就是再加上dp[i−dp[i−1]−2]。
+
+    最后的答案即为dp 数组中的最大值。
+
+
+     */
+    public int longestValidParentheses(String s) {
+        int maxans = 0;
+        int dp[] = new int[s.length()];
+        for (int i = 1; i < s.length(); i++) {
+            if (s.charAt(i) == ')') {
+                if (s.charAt(i - 1) == '(') {
+                    dp[i] = (i >= 2 ? dp[i - 2] : 0) + 2;
+                } else if (i - dp[i - 1] > 0 && s.charAt(i - dp[i - 1] - 1) == '(') {
+                    dp[i] = dp[i - 1] + ((i - dp[i - 1]) >= 2 ? dp[i - dp[i - 1] - 2] : 0) + 2;
+                }
+                maxans = Math.max(maxans, dp[i]);
+            }
+        }
+        return maxans;
+    }
+
+    /*
+    假设按照升序排序的数组在预先未知的某个点上进行了旋转。
+
+    ( 例如，数组[0,1,2,4,5,6,7]可能变为[4,5,6,7,0,1,2])。
+
+    搜索一个给定的目标值，如果数组中存在这个目标值，则返回它的索引，否则返回-1。
+
+    你可以假设数组中不存在重复的元素。
+
+    你的算法时间复杂度必须是O(logn) 级别。
+
+    示例 1:
+    输入: nums = [4,5,6,7,0,1,2], target = 0
+    输出: 4
+
+    示例2:
+    输入: nums = [4,5,6,7,0,1,2], target = 3
+    输出: -1
+     */
+    public int search(int[] nums, int target) {
+        if (nums == null || nums.length == 0) {
+            return -1;
+        }
+        int length = nums.length;
+        if (length == 1) {
+            return nums[0] == target ? 0 : -1;
+        }
+        int l = 0;
+        int r = length - 1;
+        while (l <= r) {
+            int mid = (l + r) / 2;
+            if (nums[mid] == target) return mid;
+            // 有序
+            if (nums[0] <= nums[mid]) {
+                if (nums[0] <= target && target < nums[mid]) {
+                    r = mid - 1;
+                } else {
+                    l = mid + 1;
+                }
+            } else {
+                // 无序
+                if (nums[mid] < target && target <= nums[length - 1]) {
+                    l = mid + 1;
+                } else {
+                    r = mid - 1;
+                }
+            }
+        }
+        return -1;
     }
 }
