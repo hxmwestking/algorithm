@@ -9,8 +9,11 @@ public class leetcode {
         leetcode.nextPermutation(arr);
         System.out.println(Arrays.toString(arr));*/
 
-        int[] arr = {4,5,6,7,0,1,2};
-        System.out.println(leetcode.search(arr, 0));
+        /*int[] arr = {4, 5, 6, 7, 0, 1, 2};
+        System.out.println(leetcode.search(arr, 0));*/
+
+        int[] arr = {1,4};
+        System.out.println(Arrays.toString(leetcode.searchRange(arr,4)));
     }
 
     /*
@@ -171,4 +174,107 @@ public class leetcode {
         }
         return -1;
     }
+
+    /*
+    给定一个按照升序排列的整数数组 nums，和一个目标值 target。找出给定目标值在数组中的开始位置和结束位置。
+    你的算法时间复杂度必须是O(log n) 级别。
+    如果数组中不存在目标值，返回[-1, -1]。
+    
+    示例 1:
+    输入: nums = [5,7,7,8,8,10], target = 8
+    输出: [3,4]
+
+    示例2:
+    输入: nums = [5,7,7,8,8,10], target = 6
+    输出: [-1,-1]
+     */
+    public int[] searchRange(int[] nums, int target) {
+        int length = nums.length;
+        int[] res = {-1, -1};
+        if (length == 0) {
+            return res;
+        }
+        if (length == 1) {
+            if (nums[0] == target) {
+                res[0] = 0;
+                res[1] = 0;
+            }
+            return res;
+        }
+        int l = 0;
+        int r = length - 1;
+        while (l <= r) {
+            int mid = (l + r) / 2;
+            if (nums[mid] == target) {
+                int temp = mid;
+                res[0] = mid;
+                res[1] = mid;
+                mid--;
+                if (mid < 0) {
+                    mid = 0;
+                }
+                while (nums[mid] == target) {
+                    res[0] = mid;
+                    mid--;
+                    if (mid < 0) {
+                        mid = 0;
+                        break;
+                    }
+                }
+                mid = temp;
+                mid++;
+                if (mid > length - 1) {
+                    break;
+                }
+                while (nums[mid] == target) {
+                    res[1] = mid;
+                    mid++;
+                    if (mid > length - 1) {
+                        break;
+                    }
+                }
+                return res;
+            } else if (nums[mid] > target) {
+                r = mid - 1;
+            } else {
+                l = mid + 1;
+            }
+        }
+        return res;
+    }
+
+    private int extremeInsertionIndex(int[] nums, int target, boolean left) {
+        int lo = 0;
+        int hi = nums.length;
+
+        while (lo < hi) {
+            int mid = (lo + hi) / 2;
+            if (nums[mid] > target || (left && target == nums[mid])) {
+                hi = mid;
+            }
+            else {
+                lo = mid+1;
+            }
+        }
+
+        return lo;
+    }
+
+    public int[] searchRange2(int[] nums, int target) {
+        int[] targetRange = {-1, -1};
+
+        int leftIdx = extremeInsertionIndex(nums, target, true);
+
+        // assert that `leftIdx` is within the array bounds and that `target`
+        // is actually in `nums`.
+        if (leftIdx == nums.length || nums[leftIdx] != target) {
+            return targetRange;
+        }
+
+        targetRange[0] = leftIdx;
+        targetRange[1] = extremeInsertionIndex(nums, target, false)-1;
+
+        return targetRange;
+    }
+
 }
